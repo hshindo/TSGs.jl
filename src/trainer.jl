@@ -215,24 +215,26 @@ end
 
 function output(trainer::Trainer)
     tsgdict = trainer.tsgdict
-    data = Tuple{String,Int}[]
+    data = Tuple{String,Int,Float64}[]
     for id in values(tsgdict)
         tsg = tsgdict[id]
-        tsg = convert(tsg) do n
+        c = count(tsgdict, id)
+        tree = convert(tsg) do n
             s = trainer.symdict[n.data.symid]
             isleaf(n) ? s : "@"*s # add @ for nonterminal node
         end
-        s = string(tsg)
-        c = count(tsgdict, id)
-        push!(data, (s,c))
+        s = string(tree)
+        dist = trainer.tsgdists[tsg.data.symid]
+        p = prob(dist, id)
+        push!(data, (s,c,p))
     end
     sort!(data, by=x->x[2], rev=true)
 
     outfile = trainer.config["output_file"]
     println("Writing $outfile...")
     open(outfile, "w") do io
-        for (s,c) in data
-            println(io, "$s\t$c")
+        for (s,c,p) in data
+            println(io, "$s\t$c\t$p")
         end
     end
 end
