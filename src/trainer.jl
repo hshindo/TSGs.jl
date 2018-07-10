@@ -220,8 +220,7 @@ function output(trainer::Trainer)
         tsg = tsgdict[id]
         c = count(tsgdict, id)
         tree = convert(tsg) do n
-            s = trainer.symdict[n.data.symid]
-            isleaf(n) ? s : "@"*s # add @ for nonterminal node
+            trainer.symdict[n.data.symid]
         end
         s = string(tree)
         dist = trainer.tsgdists[tsg.data.symid]
