@@ -48,6 +48,19 @@ function Base.size(tree::Tree)
     sum(size, tree.children) + 1
 end
 
+function Base.convert(f::Function, tree::Tree{T}) where T
+    function _convert(src::Tree{T}, trg::Tree)
+        for s in src.children
+            t = Tree(f(s))
+            push!(trg, t)
+            _convert(s, t)
+        end
+    end
+    res = Tree(f(tree))
+    _convert(tree, res)
+    res
+end
+
 function setchildren!(tree::Tree, children::Vector)
     empty!(tree)
     append!(tree, children)
@@ -89,19 +102,6 @@ function findall(f::Function, tree::Tree)
 end
 findall(tree::Tree, name::String) = findall(x -> x.name == name, tree)
 =#
-
-function Base.convert(f::Function, tree::Tree)
-    function _convert(src::Tree, trg::Tree)
-        for s in src.children
-            t = Tree(f(s))
-            push!(trg, t)
-            _convert(s, t)
-        end
-    end
-    root = Tree(f(tree))
-    _convert(tree, root)
-    root
-end
 
 function topdown_while(f::Function, tree::Tree)
     cond = f(tree)

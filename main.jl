@@ -1,7 +1,8 @@
 using TSGs
 
 config = Dict()
-config["train_file"] = "C:/Users/hshindo/Dropbox/corpus/wsj/wsj_22.mrg"
+config["input_file"] = "data/wsj_22.mrg"
+config["output_file"] = "out.txt"
 config["nepochs"] = 10
 
 trainer = Trainer(config)

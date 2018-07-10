@@ -14,6 +14,8 @@ julia> Pkg.clone("https://github.com/hshindo/TSGs.jl.git")
 ```
 
 ## Usage
+Copy `main.jl` to your preferred directory and edit as you like.
+Then,
 ```
 julia main.jl
 ```

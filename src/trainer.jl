@@ -14,7 +14,7 @@ mutable struct Trainer
 end
 
 function Trainer(config::Dict)
-    lines = open(readlines, config["train_file"])
+    lines = open(readlines, config["input_file"])
     trees = map(lines) do line
         tree = parse(Tree, line)
         binarize_right!(tree)
@@ -218,13 +218,19 @@ function output(trainer::Trainer)
     data = Tuple{String,Int}[]
     for id in values(tsgdict)
         tsg = tsgdict[id]
-        
+        tsg = convert(tsg) do n
+            s = trainer.symdict[n.data.symid]
+            isleaf(n) ? s : "@"*s # add @ for nonterminal node
+        end
+        s = string(tsg)
         c = count(tsgdict, id)
         push!(data, (s,c))
     end
     sort!(data, by=x->x[2], rev=true)
 
-    open("out.txt", "w") do io
+    outfile = trainer.config["output_file"]
+    println("Writing $outfile...")
+    open(outfile, "w") do io
         for (s,c) in data
             println(io, "$s\t$c")
         end
