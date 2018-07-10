@@ -5,6 +5,10 @@ Tree Substitution Grammars
 First, install [Julia](https://julialang.org/) 0.6.x.
 Then,
 ```
+julia> Pkg.add("JLD2")
+julia> Pkg.add("ProgressMeter")
+julia> Pkg.add("DataStructures")
+julia> Pkg.add("Distributions")
 julia> Pkg.clone("https://github.com/hshindo/TSGs.jl.git")
 ```
 
