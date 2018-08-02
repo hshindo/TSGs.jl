@@ -28,10 +28,12 @@ function Trainer(config::Dict)
         end
     end
     nonterm_count = length(symdict)
+    nosplit = Dict(x => x for x in config["nosplit"])
     trees = map(trees) do tree
         convert(tree) do n
             symid = add!(symdict, n.data)
-            TSGNode(symid, -1, -1)
+            fixed = haskey(nosplit, n.data)
+            TSGNode(symid, -1, -1, fixed)
         end
     end
 
@@ -42,6 +44,7 @@ function Trainer(config::Dict)
         for n in bottomup(tree)
             isleaf(n) && continue
             n.data.cfgid = add!(cfgdict, extract_cfg(n))
+            isfixed(n.data) && continue
             if isroot(n) || rand() >= 0.5
                 n.data.tsgid = add!(tsgdict, extract_tsg(n))
             end
@@ -105,7 +108,10 @@ function gibbs!(trainer::Trainer)
     nodes = Tree{TSGNode}[]
     for tree in trainer.trees
         for n in topdown(tree)
-            isroot(n) || isleaf(n) || push!(nodes,n)
+            isroot(n) && continue
+            isleaf(n) && continue
+            isfixed(n.data) && continue
+            push!(nodes, n)
         end
     end
     println("# Sample nodes:\t$(length(nodes))")
