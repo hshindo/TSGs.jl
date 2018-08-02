@@ -221,25 +221,34 @@ end
 
 function output(trainer::Trainer)
     tsgdict = trainer.tsgdict
-    data = Tuple{String,Int,Float64}[]
+    outdict = Dict()
     for id in values(tsgdict)
         tsg = tsgdict[id]
         c = count(tsgdict, id)
         tree = convert(tsg) do n
             trainer.symdict[n.data.symid]
         end
+        items = get!(outdict, tree.data) do
+            []
+        end
         s = string(tree)
         dist = trainer.tsgdists[tsg.data.symid]
         p = prob(dist, id)
-        push!(data, (s,c,p))
+        push!(items, (s,c,p))
     end
-    sort!(data, by=x->x[2], rev=true)
+    for items in values(outdict)
+        sort!(items, by=x->x[3], rev=true)
+    end
+    sorted = sort(collect(outdict), by=x->x[1])
 
     outfile = trainer.config["output_file"]
     println("Writing $outfile...")
     open(outfile, "w") do io
-        for (s,c,p) in data
-            println(io, "$s\t$c\t$p")
+        for (k,items) in sorted
+            for (s,c,p) in items
+                println(io, "$s\t$c\t$p")
+            end
+            println(io, "")
         end
     end
 end
