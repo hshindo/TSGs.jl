@@ -241,7 +241,7 @@ function output(trainer::Trainer)
     end
     sorted = sort(collect(outdict), by=x->x[1])
 
-    outfile = trainer.config["output_file"]
+    outfile = trainer.config["output_file_rules"]
     println("Writing $outfile...")
     open(outfile, "w") do io
         for (k,items) in sorted
@@ -249,6 +249,22 @@ function output(trainer::Trainer)
                 println(io, "$s\t$c\t$p")
             end
             println(io, "")
+        end
+    end
+
+    strs = String[]
+    for tree in trainer.trees
+        t = convert(tree) do n
+            sym = trainer.symdict[n.data.symid]
+            b = issub(n.data) ? 1 : 0
+            Tree("$(sym):$b")
+        end
+        push!(strs, string(t))
+    end
+    outfile = trainer.config["output_file_instances"]
+    open(outfile, "w") do io
+        for str in strs
+            println(io, str)
         end
     end
 end
