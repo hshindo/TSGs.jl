@@ -126,11 +126,25 @@ function gibbs!(trainer::Trainer)
         end
         update!(trainer)
 
-        likelihood = sum(loglikelihood, trainer.tsgdists)
+        likelihood = Base.sum(loglikelihood, trainer.tsgdists)
         println("Likelihood:\t$likelihood")
         println("# TSG rules\t$(length(trainer.tsgdict))")
-        m = mean(size, keys(trainer.tsgdict))
+        tsgdict = trainer.tsgdict
+        m = mean(size, keys(tsgdict))
         println("Mean of TSG size\t$m")
+        counts = zeros(Int, 10)
+        for id = 1:length(tsgdict.id2key)
+            t = tsgdict.id2key[id]
+            count = tsgdict.id2count[id]
+            s = size(t)
+            s > 10 && continue
+            counts[s] += count
+        end
+        sum = Base.sum(counts)
+        for i = 1:length(counts)
+            p = counts[i] / sum
+            println("Ratio of TSG size $i:\t$p")
+        end
         println()
     end
 end
