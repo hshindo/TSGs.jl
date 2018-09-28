@@ -198,8 +198,13 @@ function update!(trainer::Trainer)
     foreach(update!, trainer.tsgdists)
 
     nonterm_count = length(trainer.tsgdists)
-    stop_counts = ones(Int, nonterm_count)
-    nonstop_counts = ones(Int, nonterm_count)
+    stop_counts = zeros(Int, nonterm_count)
+    nonstop_counts = zeros(Int, nonterm_count)
+    prior = config["stop_prior"]
+    @assert length(prior) == 2 && prior[1] >= 0 && prior[2] >= 0
+    fill!(stop_counts, prior[1])
+    fill!(nonstop_counts, prior[2])
+
     for id in values(trainer.tsgdict)
         tsg = trainer.tsgdict[id]
         dist = trainer.tsgdists[tsg.data.symid]
